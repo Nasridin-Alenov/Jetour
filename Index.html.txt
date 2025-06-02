@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <title>Учет участников JETOUR CLUB ASTANA</title>
+  <style>
+    body { font-family: Arial, sans-serif; max-width: 700px; margin: 20px auto; padding: 0 10px; }
+    h2 { text-align: center; }
+    label { display: block; margin-top: 10px; }
+    input { width: 100%; padding: 8px; margin-top: 4px; box-sizing: border-box; }
+    button { margin-top: 15px; padding: 10px 20px; cursor: pointer; }
+    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+    th, td { border: 1px solid #ccc; padding: 8px; text-align: center; }
+    th { background-color: #f0f0f0; }
+  </style>
+</head>
+<body>
+  <h2>Учет участников JETOUR CLUB ASTANA</h2>
+
+  <form id="clubForm">
+    <label>Город:
+      <input type="text" id="city" required />
+    </label>
+    <label>Имя участника:
+      <input type="text" id="name" required />
+    </label>
+    <label>Государственный регистрационный номер машины:
+      <input type="text" id="regNumber" required />
+    </label>
+    <label>Номер машины:
+      <input type="text" id="carNumber" required />
+    </label>
+    <label>Марка машины:
+      <input type="text" id="brand" required />
+    </label>
+    <label>Модель машины:
+      <input type="text" id="model" required />
+    </label>
+    <label>Цвет машины:
+      <input type="text" id="color" required />
+    </label>
+    <button type="submit">Добавить участника</button>
+  </form>
+
+  <h3>Список участников</h3>
+  <table id="dataTable">
+    <thead>
+      <tr>
+        <th>№</th>
+        <th>Город</th>
+        <th>Имя участника</th>
+        <th>Гос. регистрационный номер</th>
+        <th>Номер машины</th>
+        <th>Марка машины</th>
+        <th>Модель машины</th>
+        <th>Цвет машины</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- Данные будут добавляться сюда -->
+    </tbody>
+  </table>
+
+  <button id="exportBtn" style="display:none;">Экспорт в Excel (CSV)</button>
+
+  <script>
+    const form = document.getElementById('clubForm');
+    const tableBody = document.querySelector('#dataTable tbody');
+    const exportBtn = document.getElementById('exportBtn');
+
+    let data = [];
+
+    form.addEventListener('submit', e => {
+      e.preventDefault();
+
+      const city = document.getElementById('city').value.trim();
+      const name = document.getElementById('name').value.trim();
+      const regNumber = document.getElementById('regNumber').value.trim();
+      const carNumber = document.getElementById('carNumber').value.trim();
+      const brand = document.getElementById('brand').value.trim();
+      const model = document.getElementById('model').value.trim();
+      const color = document.getElementById('color').value.trim();
+
+      if (!city || !name || !regNumber || !carNumber || !brand || !model || !color) {
+        alert('Пожалуйста, заполните все поля.');
+        return;
+      }
+
+      const entry = { city, name, regNumber, carNumber, brand, model, color };
+      data.push(entry);
+      addRow(entry);
+      form.reset();
+      exportBtn.style.display = 'inline-block';
+    });
+
+    function addRow(entry) {
+      const row = document.createElement('tr');
+      const rowNum = data.length;
+      row.innerHTML = `
+        <td>${rowNum}</td>
+        <td>${entry.city}</td>
+        <td>${entry.name}</td>
+        <td>${entry.regNumber}</td>
+        <td>${entry.carNumber}</td>
+        <td>${entry.brand}</td>
+        <td>${entry.model}</td>
+        <td>${entry.color}</td>
+      `;
+      tableBody.appendChild(row);
+    }
+
+    exportBtn.addEventListener('click', () => {
+      if (data.length === 0) {
+        alert('Нет данных для экспорта!');
+        return;
+      }
+
+      const csvHeader = ['№', 'Город', 'Имя участника', 'Гос. регистрационный номер', 'Номер машины', 'Марка машины', 'Модель машины', 'Цвет машины'];
+      const csvRows = [csvHeader.join(',')];
+
+      data.forEach((entry, index) => {
+        const values = [
+          index + 1,
+          entry.city,
+          entry.name,
+          entry.regNumber,
+          entry.carNumber,
+          entry.brand,
+          entry.model,
+          entry.color
+        ].map(v => `"${v.replace(/"/g, '""')}"`);
+        csvRows.push(values.join(','));
+      });
+
+      const csvString = csvRows.join('\n');
+      const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+
+      const link = document.createElement('a');
+      link.setAttribute('href', url);
+      link.setAttribute('download', 'jetour_club_astana.csv');
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    });
+  </script>
+</body>
+</html>
